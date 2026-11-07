@@ -324,11 +324,11 @@ void NahmanVocalSuiteAudioProcessor::processBlock(juce::AudioBuffer<float>& buff
         auto mainBlock = juce::dsp::AudioBlock<float>(buffer).getSubsetChannelBlock(0, (size_t)channels);
         auto oversampledBlock = saturationOversampling.processSamplesUp(mainBlock);
         const float drive = 1.0f + sat * 5.0f;
-        const float normaliser = std::tanh(drive);
+        const float outputCompensation = 1.0f / drive;
         for (size_t ch = 0; ch < oversampledBlock.getNumChannels(); ++ch) {
             auto* samples = oversampledBlock.getChannelPointer(ch);
             for (size_t i = 0; i < oversampledBlock.getNumSamples(); ++i)
-                samples[i] = std::tanh(samples[i] * drive) / normaliser;
+                samples[i] = std::tanh(samples[i] * drive) * outputCompensation;
         }
         saturationOversampling.processSamplesDown(mainBlock);
     }
