@@ -32,6 +32,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout NahmanVocalSuiteAudioProcess
     addBool("satOn", "Saturation", false);
     addBool("reverbOn", "Reverb", false);
     addBool("delayOn", "Delay", false);
+    addBool("deEsserOn", "De-Esser", false);
     addBool("abBypass", "A-B Bypass", false);
     addBool("autoTuneOn", "Auto Tune", false);
     p.push_back(std::make_unique<AudioParameterChoice>(ParameterID{"tuneKey", 1}, "Tune Key", StringArray{"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"}, 0));
@@ -50,6 +51,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout NahmanVocalSuiteAudioProcess
     addFloat("saturation", "Saturation", {0.0f, 100.0f, 1.0f}, 12.0f);
     addFloat("reverb", "Reverb Mix", {0.0f, 100.0f, 1.0f}, 12.0f);
     addFloat("delay", "Delay Mix", {0.0f, 100.0f, 1.0f}, 10.0f);
+    addFloat("deEsserAmount", "De-Esser Amount", {0.0f, 100.0f, 1.0f}, 35.0f);
     addFloat("output", "Output", {-24.0f, 12.0f, 0.1f}, 0.0f);
     return {p.begin(), p.end()};
 }
@@ -60,7 +62,7 @@ void NahmanVocalSuiteAudioProcessor::prepareToPlay(double sampleRate, int sample
     dryBuffer.setSize(getTotalNumOutputChannels(), samplesPerBlock);
     for (auto& channel : pitchDelayBuffer) channel.fill(0.0f);
     pitchDelayWrite.fill(0); pitchPhase.fill(0.0f);
-    pitchHistory.fill(0.0f); pitchWritePosition = 0; pitchHistorySamples = 0; pitchAnalysisCounter = 0;
+    pitchHistory.fill(0.0f); deEsserHighpassState.fill(0.0f); deEsserEnvelope.fill(0.0f); gateEnvelope.fill(0.0f); pitchWritePosition = 0; pitchHistorySamples = 0; pitchAnalysisCounter = 0;
     detectedPitchHz.store(0.0f); smoothedPitchFactor = 1.0f;
     reverb.prepare(spec);
     juce::dsp::Reverb::Parameters rp;
@@ -171,6 +173,8 @@ void NahmanVocalSuiteAudioProcessor::processBlock(juce::AudioBuffer<float>& buff
     const bool satOn = parameters.getRawParameterValue("satOn")->load() > 0.5f;
     const bool revOn = parameters.getRawParameterValue("reverbOn")->load() > 0.5f;
     const bool delOn = parameters.getRawParameterValue("delayOn")->load() > 0.5f;
+    const bool deEsserOn = parameters.getRawParameterValue("deEsserOn")->load() > 0.5f;
+    const float deEsserAmount = parameters.getRawParameterValue("deEsserAmount")->load() / 100.0f;
     const bool abBypass = parameters.getRawParameterValue("abBypass")->load() > 0.5f;
     const float threshold = parameters.getRawParameterValue("threshold")->load();
     const float ratio = parameters.getRawParameterValue("ratio")->load();
@@ -267,14 +271,37 @@ void NahmanVocalSuiteAudioProcessor::processBlock(juce::AudioBuffer<float>& buff
         }
         if (gateOn) {
             const float gateLevel = juce::Decibels::decibelsToGain(-48.0f);
-            for (int i = 0; i < buffer.getNumSamples(); ++i)
-                if (std::abs(data[i]) < gateLevel) data[i] *= 0.15f;
+            const float attack = std::exp(-1.0f / (0.005f * (float)getSampleRate()));
+            const float release = std::exp(-1.0f / (0.080f * (float)getSampleRate()));
+            for (int i = 0; i < buffer.getNumSamples(); ++i) {
+                const float x = std::abs(data[i]);
+                const float coeff = x > gateEnvelope[(size_t)ch] ? attack : release;
+                gateEnvelope[(size_t)ch] = coeff * gateEnvelope[(size_t)ch] + (1.0f - coeff) * x;
+                data[i] *= gateEnvelope[(size_t)ch] >= gateLevel ? 1.0f : 0.12f;
+            }
         }
         if (compOn) {
             compressor[ch].setThreshold(threshold); compressor[ch].setRatio(ratio);
             compressor[ch].setAttack(parameters.getRawParameterValue("attack")->load());
             compressor[ch].setRelease(parameters.getRawParameterValue("release")->load());
             compressor[ch].process(context);
+        }
+        if (deEsserOn && deEsserAmount > 0.0f) {
+            const float sr = (float)getSampleRate();
+            const float pole = std::exp(-juce::MathConstants<float>::twoPi * 6200.0f / sr);
+            const float attack = std::exp(-1.0f / (0.0015f * sr));
+            const float release = std::exp(-1.0f / (0.055f * sr));
+            for (int i = 0; i < buffer.getNumSamples(); ++i) {
+                const float x = data[i];
+                const float low = (1.0f - pole) * x + pole * deEsserHighpassState[(size_t)ch];
+                deEsserHighpassState[(size_t)ch] = low;
+                const float high = x - low;
+                const float magnitude = std::abs(high);
+                const float coeff = magnitude > deEsserEnvelope[(size_t)ch] ? attack : release;
+                deEsserEnvelope[(size_t)ch] = coeff * deEsserEnvelope[(size_t)ch] + (1.0f - coeff) * magnitude;
+                const float reduction = juce::jlimit(0.0f, 0.75f, (deEsserEnvelope[(size_t)ch] - 0.035f) * 9.0f * deEsserAmount);
+                data[i] -= high * reduction;
+            }
         }
         if (satOn && sat > 0.0f)
             for (int i = 0; i < buffer.getNumSamples(); ++i) data[i] = std::tanh(data[i] * (1.0f + sat * 5.0f));
