@@ -59,6 +59,7 @@ NahmanVocalSuiteAudioProcessorEditor::NahmanVocalSuiteAudioProcessorEditor(Nahma
     addKnob(reverb,     "חלל · REVERB",        "reverb");
     addKnob(delay,      "הד · DELAY",          "delay");
     addKnob(output,     "יציאה · OUTPUT",      "output");
+    addKnob(deEsserAmount, "דה־אסר · DE-ESSER", "deEsserAmount");
 
     styleButton(magic, "✦  מיקס קסם  ·  MAGIC MIX", juce::Colour(0xff17445b));
     magic.setColour(juce::TextButton::textColourOffId, cyan);
@@ -159,6 +160,7 @@ NahmanVocalSuiteAudioProcessorEditor::NahmanVocalSuiteAudioProcessorEditor(Nahma
     addToggle(sat,  "רוויה · SAT", "satOn");
     addToggle(rev,  "ריוורב · VERB", "reverbOn");
     addToggle(del,  "דיליי · DLY", "delayOn");
+    addToggle(deEsser, "דה־אסר · DE-ESSER", "deEsserOn");
 }
 
 void NahmanVocalSuiteAudioProcessorEditor::paint(juce::Graphics& g)
@@ -239,10 +241,10 @@ void NahmanVocalSuiteAudioProcessorEditor::resized()
     analysisResult.setBounds(730, 202, 365, 40);
 
     // Zone 2: processing modules.
-    juce::ToggleButton* buttons[] = { &gate, &eq, &comp, &sat, &rev, &del };
-    for (int i = 0; i < 6; ++i) buttons[i]->setBounds(54 + i * 178, 365, 170, 22);
+    juce::ToggleButton* buttons[] = { &gate, &eq, &comp, &sat, &rev, &del, &deEsser };
+    for (int i = 0; i < 7; ++i) buttons[i]->setBounds(54 + i * 154, 365, 148, 22);
 
-    juce::Component* knobs[] = { &input, &hpf, &low, &mid, &high, &threshold, &ratio, &saturation, &reverb, &delay, &output };
+    juce::Component* knobs[] = { &input, &hpf, &low, &mid, &high, &threshold, &ratio, &saturation, &reverb, &delay, &output, &deEsserAmount };
     const int columns = 6, startX = 58, startY = 405, cellW = 180, cellH = 135;
     for (int i = 0; i < 11; ++i) {
         const int row = i / columns, col = i % columns;
