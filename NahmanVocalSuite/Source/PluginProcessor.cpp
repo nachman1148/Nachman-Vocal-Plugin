@@ -62,9 +62,15 @@ void NahmanVocalSuiteAudioProcessor::prepareToPlay(double sampleRate, int sample
     dryBuffer.setSize(getTotalNumOutputChannels(), samplesPerBlock);
     for (auto& channel : pitchDelayBuffer) channel.fill(0.0f);
     pitchDelayWrite.fill(0); pitchPhase.fill(0.0f);
-    pitchHistory.fill(0.0f); deEsserHighpassState.fill(0.0f); deEsserEnvelope.fill(0.0f); gateEnvelope.fill(0.0f); pitchWritePosition = 0; pitchHistorySamples = 0; pitchAnalysisCounter = 0;
+    pitchHistory.fill(0.0f); deEsserHighpassState.fill(0.0f); deEsserEnvelope.fill(0.0f); gateEnvelope.fill(0.0f); gateGain.fill(1.0f); pitchWritePosition = 0; pitchHistorySamples = 0; pitchAnalysisCounter = 0;
     detectedPitchHz.store(0.0f); smoothedPitchFactor = 1.0f;
     reverb.prepare(spec);
+    saturationOversampling.initProcessing((size_t)samplesPerBlock);
+    saturationOversampling.reset();
+    outputLimiter.prepare(spec);
+    outputLimiter.setThreshold(-1.0f);
+    outputLimiter.setRelease(80.0f);
+    setLatencySamples((int)std::ceil(saturationOversampling.getLatencyInSamples()));
     juce::dsp::Reverb::Parameters rp;
     rp.roomSize = 0.55f; rp.damping = 0.45f; rp.wetLevel = 0.25f; rp.dryLevel = 0.75f;
     reverb.setParameters(rp);
@@ -277,7 +283,11 @@ void NahmanVocalSuiteAudioProcessor::processBlock(juce::AudioBuffer<float>& buff
                 const float x = std::abs(data[i]);
                 const float coeff = x > gateEnvelope[(size_t)ch] ? attack : release;
                 gateEnvelope[(size_t)ch] = coeff * gateEnvelope[(size_t)ch] + (1.0f - coeff) * x;
-                data[i] *= gateEnvelope[(size_t)ch] >= gateLevel ? 1.0f : 0.12f;
+                const float targetGain = gateEnvelope[(size_t)ch] >= gateLevel ? 1.0f : 0.0f;
+                const float gainTime = targetGain > gateGain[(size_t)ch] ? 0.006f : 0.090f;
+                const float gainCoeff = std::exp(-1.0f / (gainTime * (float)getSampleRate()));
+                gateGain[(size_t)ch] = targetGain + gainCoeff * (gateGain[(size_t)ch] - targetGain);
+                data[i] *= gateGain[(size_t)ch];
             }
         }
         if (compOn) {
@@ -303,13 +313,24 @@ void NahmanVocalSuiteAudioProcessor::processBlock(juce::AudioBuffer<float>& buff
                 data[i] -= high * reduction;
             }
         }
-        if (satOn && sat > 0.0f)
-            for (int i = 0; i < buffer.getNumSamples(); ++i) data[i] = std::tanh(data[i] * (1.0f + sat * 5.0f));
         if (delOn && delMix > 0.0f)
             for (int i = 0; i < buffer.getNumSamples(); ++i) {
                 const float dry = data[i]; const float wet = delayLine[ch].popSample(0);
                 delayLine[ch].pushSample(0, dry); data[i] = dry * (1.0f - delMix) + wet * delMix;
             }
+    }
+    // Non-linear saturation is run at 4x sample rate to reduce aliasing.
+    if (satOn && sat > 0.0f) {
+        auto mainBlock = juce::dsp::AudioBlock<float>(buffer).getSubsetChannelBlock(0, (size_t)channels);
+        auto oversampledBlock = saturationOversampling.processSamplesUp(mainBlock);
+        const float drive = 1.0f + sat * 5.0f;
+        const float normaliser = std::tanh(drive);
+        for (size_t ch = 0; ch < oversampledBlock.getNumChannels(); ++ch) {
+            auto* samples = oversampledBlock.getChannelPointer(ch);
+            for (size_t i = 0; i < oversampledBlock.getNumSamples(); ++i)
+                samples[i] = std::tanh(samples[i] * drive) / normaliser;
+        }
+        saturationOversampling.processSamplesDown(mainBlock);
     }
     if (revOn && revMix > 0.0f) {
         auto rp = reverb.getParameters();
@@ -321,6 +342,12 @@ void NahmanVocalSuiteAudioProcessor::processBlock(juce::AudioBuffer<float>& buff
         reverb.process(reverbContext);
     }
     buffer.applyGain(outputGain);
+    // Catch transient overs before the signal reaches the host.
+    {
+        juce::dsp::AudioBlock<float> outputBlock(buffer);
+        juce::dsp::ProcessContextReplacing<float> limiterContext(outputBlock);
+        outputLimiter.process(limiterContext);
+    }
     if (abBypass) {
         for (int ch = 0; ch < channels; ++ch)
             buffer.copyFrom(ch, 0, dryBuffer, ch, 0, juce::jmin(buffer.getNumSamples(), dryBuffer.getNumSamples()));
