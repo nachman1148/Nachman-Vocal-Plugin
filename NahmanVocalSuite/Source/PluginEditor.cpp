@@ -126,7 +126,8 @@ NahmanVocalSuiteAudioProcessorEditor::NahmanVocalSuiteAudioProcessorEditor(Nahma
     autoTune.setColour(juce::ToggleButton::textColourId, juce::Colours::white);
     autoTune.setColour(juce::ToggleButton::tickColourId, cyan); addAndMakeVisible(autoTune);
     tuneAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(processor.parameters, "autoTuneOn", autoTune);
-    for (int i = 0; i < 12; ++i) tuneKey.addItem(juce::StringArray{"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"][i], i + 1);
+    const char* tuneKeys[] = { "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" };
+    for (int i = 0; i < 12; ++i) tuneKey.addItem(tuneKeys[i], i + 1);
     tuneScale.addItem("כרומטי · CHROMATIC", 1); tuneScale.addItem("מז'ור · MAJOR", 2); tuneScale.addItem("מינור · MINOR", 3);
     tuneKey.setColour(juce::ComboBox::backgroundColourId, surface2); tuneKey.setColour(juce::ComboBox::textColourId, juce::Colours::white);
     tuneScale.setColour(juce::ComboBox::backgroundColourId, surface2); tuneScale.setColour(juce::ComboBox::textColourId, juce::Colours::white);
