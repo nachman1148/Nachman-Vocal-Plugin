@@ -3,12 +3,12 @@
 
 namespace
 {
-    const juce::Colour background { 0xff080d17 };
-    const juce::Colour surface { 0xff111c2b };
-    const juce::Colour surface2 { 0xff17283a };
-    const juce::Colour cyan { 0xff55e6e6 };
-    const juce::Colour gold { 0xffd7b978 };
-    const juce::Colour muted { 0xff9aafc3 };
+    const juce::Colour background { 0xff100d09 };
+    const juce::Colour surface { 0xe51b1711 };
+    const juce::Colour surface2 { 0xff30271a };
+    const juce::Colour cyan { 0xff35bfff };
+    const juce::Colour gold { 0xffffc451 };
+    const juce::Colour muted { 0xffd6c6a8 };
 
     void styleButton(juce::TextButton& b, const juce::String& text, juce::Colour colour = surface2)
     {
@@ -24,7 +24,7 @@ namespace
 NahmanVocalSuiteAudioProcessorEditor::NahmanVocalSuiteAudioProcessorEditor(NahmanVocalSuiteAudioProcessor& p)
     : AudioProcessorEditor(&p), processor(p)
 {
-    setSize(1180, 800);
+    setSize(1280, 850);
     startTimerHz(30);
 
     auto addKnob = [this](juce::Slider& s, const juce::String& name, const char* id) {
@@ -166,46 +166,63 @@ NahmanVocalSuiteAudioProcessorEditor::NahmanVocalSuiteAudioProcessorEditor(Nahma
 void NahmanVocalSuiteAudioProcessorEditor::paint(juce::Graphics& g)
 {
     g.fillAll(background);
-    g.setGradientFill(juce::ColourGradient(juce::Colour(0xff14283b), 0.0f, 0.0f,
-                                           background, (float)getWidth(), (float)getHeight(), false));
+    g.setGradientFill(juce::ColourGradient(juce::Colour(0xff8b6030), 0.0f, 0.0f,
+                                           juce::Colour(0xff100d09), (float)getWidth(), (float)getHeight(), false));
+    g.fillAll();
+    g.setColour(juce::Colour(0x55090000)); g.fillRect(0, 0, getWidth(), getHeight());
+    g.setColour(juce::Colour(0x5a000000));
     g.fillRoundedRectangle(18.0f, 18.0f, (float)getWidth() - 36.0f, (float)getHeight() - 36.0f, 18.0f);
 
-    // Brand signature: a restrained Breslov-inspired touch.
-    g.setColour(gold); g.setFont(juce::Font(25.0f, juce::Font::bold));
-    g.drawText("נחמן", 42, 27, 100, 38, juce::Justification::right);
-    g.setColour(cyan); g.setFont(juce::Font(21.0f, juce::Font::bold));
-    g.drawText("VOCAL SUITE", 150, 31, 220, 32, juce::Justification::left);
-    g.setColour(juce::Colour(0xff8297aa)); g.setFont(juce::Font(10.5f));
-    g.drawText("אין ייאוש בעולם כלל  ·  CREATE WITH HEART", 790, 39, 330, 20, juce::Justification::right);
+    g.setColour(gold); g.setFont(juce::Font(15.0f, juce::Font::bold));
+    g.drawText("Breslov Audio", 34, 22, 150, 30, juce::Justification::left);
+    g.setColour(juce::Colours::white); g.setFont(juce::Font(48.0f, juce::Font::bold));
+    g.drawText("NAHMAN", 48, 105, 470, 70, juce::Justification::left);
+    g.setColour(gold); g.setFont(juce::Font(43.0f, juce::Font::italic));
+    g.drawText("Vocal Suite", 52, 165, 460, 62, juce::Justification::left);
+    g.setColour(juce::Colour(0xfff5ead8)); g.setFont(juce::Font(13.0f, juce::Font::bold));
+    g.drawText("PROFESSIONAL VOCAL PROCESSOR", 58, 224, 430, 24, juce::Justification::left);
+    g.setColour(gold); g.setFont(juce::Font(19.0f, juce::Font::italic));
+    g.drawText("אין ייאוש בעולם כלל", getWidth() - 330, 28, 280, 34, juce::Justification::right);
+    g.setColour(juce::Colour(0x99ffc451)); g.drawLine((float)getWidth() - 360.0f, 67.0f, (float)getWidth() - 48.0f, 67.0f, 1.5f);
 
     const auto panel = [&g](float x, float y, float w, float h) {
-        g.setColour(surface); g.fillRoundedRectangle(x, y, w, h, 12.0f);
-        g.setColour(juce::Colour(0xff35536a)); g.drawRoundedRectangle(x, y, w, h, 12.0f, 1.0f);
+        g.setColour(juce::Colour(0xd91b1712)); g.fillRoundedRectangle(x, y, w, h, 15.0f);
+        g.setColour(juce::Colour(0x88ffc451)); g.drawRoundedRectangle(x, y, w, h, 15.0f, 1.0f);
     };
-    // Three clear work zones: capture/analyze, processing, final comparison.
-    panel(38.0f, 92.0f, (float)getWidth() - 76.0f, 166.0f);
-    panel(38.0f, 270.0f, (float)getWidth() - 76.0f, 420.0f);
-    panel(38.0f, 702.0f, (float)getWidth() - 76.0f, 64.0f);
+    panel(26.0f, 285.0f, (float)getWidth() - 52.0f, 300.0f);
+    panel(26.0f, 600.0f, 710.0f, 210.0f);
+    panel(750.0f, 600.0f, 300.0f, 210.0f);
+    panel(1065.0f, 600.0f, 185.0f, 210.0f);
 
-    g.setColour(cyan); g.setFont(juce::Font(12.0f, juce::Font::bold));
-    g.drawText("01  הקלטה וניתוח  ·  RECORD & ANALYZE", 54, 98, 400, 20, juce::Justification::left);
-    g.drawText("02  עיבוד ועיצוב הקול  ·  VOCAL PROCESSING", 54, 276, 420, 20, juce::Justification::left);
-    g.setColour(gold); g.setFont(juce::Font(10.5f, juce::Font::bold));
-    g.drawText("תיקון זיופים  ·  PITCH CORRECTION", 54, 320, 300, 18, juce::Justification::left);
-    g.drawText("03  מיקס סופי והשוואה  ·  FINAL MIX & A/B", 54, 708, 350, 20, juce::Justification::left);
+    g.setColour(gold); g.setFont(juce::Font(12.0f, juce::Font::bold));
+    g.drawText("VOCAL PROCESSING  ·  עיבוד הקול", 44, 292, 400, 22, juce::Justification::left);
+    g.drawText("EQUALIZER  ·  אקולייזר", 44, 610, 260, 20, juce::Justification::left);
+    g.drawText("MULTIBAND  ·  תחומי תדר", 770, 610, 260, 20, juce::Justification::left);
+    g.drawText("OUTPUT  ·  יציאה", 1084, 610, 150, 20, juce::Justification::left);
+
     const float outLevel = juce::jlimit(0.0f, 1.0f, processor.getOutputRms() * 5.0f);
     const float outPeak = juce::jlimit(0.0f, 1.0f, processor.getOutputPeak());
-    g.setColour(juce::Colour(0xff0a1420)); g.fillRoundedRectangle(410.0f, 733.0f, 205.0f, 12.0f, 6.0f);
-    g.setColour(gold); g.fillRoundedRectangle(410.0f, 733.0f, 205.0f * outLevel, 12.0f, 6.0f);
-    g.setColour(cyan); g.drawLine(410.0f + 205.0f * outPeak, 729.0f, 410.0f + 205.0f * outPeak, 750.0f, 2.0f);
-    g.setColour(muted); g.setFont(juce::Font(9.5f));
-    g.drawText("יציאה  ·  OUTPUT", 410, 714, 205, 16, juce::Justification::left);
+    g.setColour(juce::Colour(0xff090806)); g.fillRoundedRectangle(1085.0f, 652.0f, 22.0f, 126.0f, 7.0f);
+    g.setColour(juce::Colour(0xff55d98b)); g.fillRoundedRectangle(1087.0f, 778.0f - 122.0f * outLevel, 18.0f, 122.0f * outLevel, 5.0f);
+    g.setColour(gold); g.drawLine(1083.0f, 778.0f - 122.0f * outPeak, 1110.0f, 778.0f - 122.0f * outPeak, 2.0f);
+    g.setColour(muted); g.setFont(juce::Font(10.0f));
+    g.drawText("RMS  " + juce::String(juce::Decibels::gainToDecibels(juce::jmax(0.00001f, processor.getOutputRms())), 1) + " dB", 1118, 665, 120, 18, juce::Justification::left);
+    g.drawText("PEAK  " + juce::String(juce::Decibels::gainToDecibels(juce::jmax(0.00001f, processor.getOutputPeak())), 1) + " dB", 1118, 690, 120, 18, juce::Justification::left);
 
-    // Live input waveform (128-point snapshot supplied by the audio thread).
-    const juce::Rectangle<float> waveArea(58.0f, 124.0f, 330.0f, 105.0f);
-    g.setColour(juce::Colour(0xff0a1420)); g.fillRoundedRectangle(waveArea, 8.0f);
-    g.setColour(juce::Colour(0xff29475a));
-    g.drawLine(waveArea.getX(), waveArea.getCentreY(), waveArea.getRight(), waveArea.getCentreY(), 1.0f);
+    const juce::Rectangle<float> eqArea(48.0f, 648.0f, 660.0f, 142.0f);
+    g.setColour(juce::Colour(0xff100e0a)); g.fillRoundedRectangle(eqArea, 8.0f);
+    g.setColour(juce::Colour(0x55ffc451));
+    for (int i = 1; i < 8; ++i) g.drawVerticalLine((int)(eqArea.getX() + i * eqArea.getWidth() / 8.0f), eqArea.getY(), eqArea.getBottom());
+    for (int i = 1; i < 4; ++i) g.drawHorizontalLine((int)(eqArea.getY() + i * eqArea.getHeight() / 4.0f), eqArea.getX(), eqArea.getRight());
+    juce::Path curve;
+    curve.startNewSubPath(eqArea.getX(), eqArea.getCentreY());
+    curve.cubicTo(eqArea.getX()+120, eqArea.getY()+eqArea.getHeight()*0.72f, eqArea.getX()+170, eqArea.getY()+eqArea.getHeight()*0.20f, eqArea.getX()+300, eqArea.getY()+eqArea.getHeight()*0.43f);
+    curve.cubicTo(eqArea.getX()+420, eqArea.getY()+eqArea.getHeight()*0.56f, eqArea.getX()+520, eqArea.getY()+eqArea.getHeight()*0.58f, eqArea.getRight(), eqArea.getCentreY());
+    g.setColour(gold); g.strokePath(curve, juce::PathStrokeType(2.4f));
+
+    const juce::Rectangle<float> waveArea(540.0f, 112.0f, 350.0f, 105.0f);
+    g.setColour(juce::Colour(0x99100d09)); g.fillRoundedRectangle(waveArea, 10.0f);
+    g.setColour(juce::Colour(0x66ffc451)); g.drawLine(waveArea.getX(), waveArea.getCentreY(), waveArea.getRight(), waveArea.getCentreY(), 1.0f);
     juce::Path wave;
     for (int i = 0; i < 128; ++i) {
         const float x = waveArea.getX() + (float)i / 127.0f * waveArea.getWidth();
@@ -213,55 +230,41 @@ void NahmanVocalSuiteAudioProcessorEditor::paint(juce::Graphics& g)
         if (i == 0) wave.startNewSubPath(x, y); else wave.lineTo(x, y);
     }
     g.setColour(cyan); g.strokePath(wave, juce::PathStrokeType(1.8f));
-
-    // Input level meter and numeric readout.
-    const float level = juce::jlimit(0.0f, 1.0f, processor.getInputRms() * 5.0f);
-    const float peak = juce::jlimit(0.0f, 1.0f, processor.getInputPeak());
-    g.setColour(juce::Colour(0xff0a1420)); g.fillRoundedRectangle(410.0f, 153.0f, 300.0f, 15.0f, 7.0f);
-    g.setColour(cyan); g.fillRoundedRectangle(410.0f, 153.0f, 300.0f * level, 15.0f, 7.0f);
-    g.setColour(gold); g.drawLine(410.0f + 300.0f * peak, 148.0f, 410.0f + 300.0f * peak, 174.0f, 2.0f);
-    g.setColour(muted); g.setFont(juce::Font(10.5f));
-    g.drawText("עוצמת כניסה  ·  INPUT LEVEL", 410, 130, 300, 18, juce::Justification::left);
-    g.drawText("RMS  " + juce::String(juce::Decibels::gainToDecibels(juce::jmax(0.00001f, processor.getInputRms())), 1) + " dB", 410, 177, 145, 18, juce::Justification::left);
-    g.drawText("PEAK  " + juce::String(juce::Decibels::gainToDecibels(juce::jmax(0.00001f, processor.getInputPeak())), 1) + " dB", 565, 177, 145, 18, juce::Justification::left);
-
-    g.setColour(juce::Colour(0xff71879c)); g.setFont(juce::Font(10.0f));
-    g.drawText("גרסת פיתוח 0.5  ·  DEVELOPMENT BUILD", 54, getHeight() - 25, 420, 14, juce::Justification::left);
+    g.setColour(muted); g.setFont(juce::Font(10.0f));
+    g.drawText("LIVE VOCAL SIGNAL  ·  אות חי", 548, 88, 300, 18, juce::Justification::left);
+    g.drawText("גרסת פיתוח  ·  DEVELOPMENT BUILD", 42, getHeight() - 22, 400, 14, juce::Justification::left);
 }
 
 void NahmanVocalSuiteAudioProcessorEditor::resized()
 {
-    // Zone 1: record / analyze controls.
-    status.setBounds(410, 112, 700, 18);
-    modeStatus.setBounds(410, 132, 300, 20);
-    aiDetect.setBounds(730, 125, 175, 32);
-    standardMode.setBounds(913, 125, 175, 32);
-    analyzeOnly.setBounds(730, 164, 160, 32);
-    applySuggestion.setBounds(898, 164, 190, 32);
-    analysisResult.setBounds(730, 202, 365, 40);
+    status.setBounds(540, 225, 570, 18);
+    modeStatus.setBounds(540, 245, 300, 20);
+    aiDetect.setBounds(850, 238, 170, 30);
+    standardMode.setBounds(1026, 238, 190, 30);
+    analyzeOnly.setBounds(850, 271, 160, 28);
+    applySuggestion.setBounds(1018, 271, 198, 28);
+    analysisResult.setBounds(540, 192, 660, 28);
 
-    // Zone 2: processing modules.
+    autoTune.setBounds(48, 300, 185, 25);
+    tuneKeyLabel.setBounds(240, 300, 65, 20); tuneKey.setBounds(305, 298, 72, 25);
+    tuneScaleLabel.setBounds(385, 300, 80, 20); tuneScale.setBounds(465, 298, 145, 25);
+    tuneSpeedLabel.setBounds(620, 300, 75, 20); tuneSpeed.setBounds(695, 298, 125, 24);
+    tuneAmountLabel.setBounds(830, 300, 75, 20); tuneAmount.setBounds(905, 298, 115, 24);
+
     juce::ToggleButton* buttons[] = { &gate, &eq, &comp, &sat, &rev, &del, &deEsser };
-    for (int i = 0; i < 7; ++i) buttons[i]->setBounds(54 + i * 154, 365, 148, 22);
+    const int bx[] = { 42, 214, 386, 558, 730, 902, 1074 };
+    for (int i = 0; i < 7; ++i) buttons[i]->setBounds(bx[i], 330, 160, 25);
 
     juce::Component* knobs[] = { &input, &hpf, &low, &mid, &high, &threshold, &ratio, &saturation, &reverb, &delay, &output, &deEsserAmount };
-    const int columns = 6, startX = 58, startY = 405, cellW = 180, cellH = 135;
-    for (int i = 0; i < 11; ++i) {
-        const int row = i / columns, col = i % columns;
-        knobs[i]->setBounds(startX + col * cellW, startY + row * cellH, 116, 104);
-        if (i < (int)labels.size()) labels[(size_t)i]->setBounds(startX + col * cellW - 5, startY + row * cellH + 103, 126, 20);
+    const int x[] = { 42, 214, 386, 558, 730, 902, 1074, 42, 214, 386, 558, 730 };
+    for (int i = 0; i < 12; ++i) {
+        const int y = i < 7 ? 365 : 455;
+        knobs[i]->setBounds(x[i], y, 112, 86);
+        if (i < (int)labels.size()) labels[(size_t)i]->setBounds(x[i] - 8, y + 82, 128, 18);
     }
 
-    // Auto-tune controls sit above the general processing row.
-    autoTune.setBounds(54, 320, 190, 26);
-    tuneKeyLabel.setBounds(260, 319, 70, 20); tuneKey.setBounds(334, 318, 72, 25);
-    tuneScaleLabel.setBounds(416, 319, 95, 20); tuneScale.setBounds(514, 318, 170, 25);
-    tuneSpeedLabel.setBounds(690, 319, 82, 20); tuneSpeed.setBounds(772, 318, 135, 24);
-    tuneAmountLabel.setBounds(914, 319, 82, 20); tuneAmount.setBounds(996, 318, 112, 24);
-
-    // Zone 3: instant dry/processed A-B and one-click starting mix.
-    magic.setBounds(650, 718, 220, 34);
-    abCompare.setBounds(884, 718, 225, 34);
+    magic.setBounds(42, 750, 190, 34);
+    abCompare.setBounds(248, 750, 235, 34);
 }
 
 void NahmanVocalSuiteAudioProcessorEditor::timerCallback()
