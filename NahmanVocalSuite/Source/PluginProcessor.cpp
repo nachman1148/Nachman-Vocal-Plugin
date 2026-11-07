@@ -94,10 +94,10 @@ void NahmanVocalSuiteAudioProcessor::updateFilters()
     const auto mid = parameters.getRawParameterValue("mid")->load();
     const auto high = parameters.getRawParameterValue("high")->load();
     for (int ch = 0; ch < 2; ++ch) {
-        *hpFilters[ch].state = *juce::dsp::IIR::Coefficients<float>::makeHighPass(sr, hpf);
-        *lowFilters[ch].state = *juce::dsp::IIR::Coefficients<float>::makeLowShelf(sr, 160.0f, 0.707f, juce::Decibels::decibelsToGain(low));
-        *midFilters[ch].state = *juce::dsp::IIR::Coefficients<float>::makePeakFilter(sr, 1200.0f, 0.9f, juce::Decibels::decibelsToGain(mid));
-        *highFilters[ch].state = *juce::dsp::IIR::Coefficients<float>::makeHighShelf(sr, 8500.0f, 0.707f, juce::Decibels::decibelsToGain(high));
+        hpFilters[ch].coefficients = juce::dsp::IIR::Coefficients<float>::makeHighPass(sr, hpf);
+        lowFilters[ch].coefficients = juce::dsp::IIR::Coefficients<float>::makeLowShelf(sr, 160.0f, 0.707f, juce::Decibels::decibelsToGain(low));
+        midFilters[ch].coefficients = juce::dsp::IIR::Coefficients<float>::makePeakFilter(sr, 1200.0f, 0.9f, juce::Decibels::decibelsToGain(mid));
+        highFilters[ch].coefficients = juce::dsp::IIR::Coefficients<float>::makeHighShelf(sr, 8500.0f, 0.707f, juce::Decibels::decibelsToGain(high));
     }
 }
 
@@ -285,13 +285,13 @@ void NahmanVocalSuiteAudioProcessor::processBlock(juce::AudioBuffer<float>& buff
             }
     }
     if (revOn && revMix > 0.0f) {
-        for (int ch = 0; ch < channels; ++ch) {
-            auto* d = buffer.getWritePointer(ch);
-            for (int i = 0; i < buffer.getNumSamples(); ++i) {
-                float wet = d[i]; reverb.processMono( wet );
-                d[i] = d[i] * (1.0f - revMix) + wet * revMix;
-            }
-        }
+        auto rp = reverb.getParameters();
+        rp.wetLevel = revMix;
+        rp.dryLevel = 1.0f - revMix;
+        reverb.setParameters(rp);
+        juce::dsp::AudioBlock<float> reverbBlock(buffer);
+        juce::dsp::ProcessContextReplacing<float> reverbContext(reverbBlock);
+        reverb.process(reverbContext);
     }
     buffer.applyGain(outputGain);
     if (abBypass) {
