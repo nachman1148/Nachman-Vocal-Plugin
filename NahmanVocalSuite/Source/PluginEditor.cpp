@@ -4,11 +4,11 @@
 namespace
 {
     const juce::Colour background { 0xff100d09 };
-    const juce::Colour surface { 0xe51b1711 };
-    const juce::Colour surface2 { 0xff30271a };
-    const juce::Colour cyan { 0xff35bfff };
-    const juce::Colour gold { 0xffffc451 };
-    const juce::Colour muted { 0xffd6c6a8 };
+    const juce::Colour surface { 0xe6101418 };
+    const juce::Colour surface2 { 0xff202a30 };
+    const juce::Colour cyan { 0xff59d7d0 };
+    const juce::Colour gold { 0xffd9ad65 };
+    const juce::Colour muted { 0xffd7d0c3 };
 
     void styleButton(juce::TextButton& b, const juce::String& text, juce::Colour colour = surface2)
     {
@@ -179,25 +179,33 @@ void NahmanVocalSuiteAudioProcessorEditor::paint(juce::Graphics& g)
     g.fillAll();
     if (backgroundImage.isValid())
         g.drawImage(backgroundImage, getLocalBounds().toFloat(), juce::RectanglePlacement(juce::RectanglePlacement::centred | juce::RectanglePlacement::fillDestination));
-    g.setColour(juce::Colour(0x72090000)); g.fillRect(0, 0, getWidth(), getHeight());
-    g.setColour(juce::Colour(0x5a000000));
+    // Darken the selected photograph while preserving its warm atmosphere.
+    g.setColour(juce::Colour(0x9906090b)); g.fillRect(0, 0, getWidth(), getHeight());
+    g.setGradientFill(juce::ColourGradient(juce::Colour(0x6605090d), 0.0f, 0.0f,
+                                           juce::Colour(0xb8090b0d), 0.0f, (float)getHeight(), false));
+    g.fillRect(getLocalBounds());
+    g.setColour(juce::Colour(0x45000000));
     g.fillRoundedRectangle(18.0f, 18.0f, (float)getWidth() - 36.0f, (float)getHeight() - 36.0f, 18.0f);
+    g.setColour(juce::Colour(0x55d9ad65));
+    g.drawRoundedRectangle(18.0f, 18.0f, (float)getWidth() - 36.0f, (float)getHeight() - 36.0f, 18.0f, 1.0f);
 
-    g.setColour(gold); g.setFont(juce::Font(15.0f, juce::Font::bold));
-    g.drawText("Breslov Audio", 34, 22, 150, 30, juce::Justification::left);
-    g.setColour(juce::Colours::white); g.setFont(juce::Font(48.0f, juce::Font::bold));
-    g.drawText("NAHMAN", 48, 105, 470, 70, juce::Justification::left);
-    g.setColour(gold); g.setFont(juce::Font(43.0f, juce::Font::italic));
-    g.drawText("Vocal Suite", 52, 165, 460, 62, juce::Justification::left);
-    g.setColour(juce::Colour(0xfff5ead8)); g.setFont(juce::Font(13.0f, juce::Font::bold));
-    g.drawText("PROFESSIONAL VOCAL PROCESSOR", 58, 224, 430, 24, juce::Justification::left);
+    g.setColour(gold); g.setFont(juce::Font(13.0f, juce::Font::bold));
+    g.drawText("NAHMAN AUDIO  /  BRESLOV INSPIRED", 38, 28, 300, 22, juce::Justification::left);
+    g.setColour(juce::Colour(0x88d9ad65)); g.drawLine(38.0f, 58.0f, 270.0f, 58.0f, 1.0f);
+    g.setColour(juce::Colours::white); g.setFont(juce::Font(43.0f, juce::Font::bold));
+    g.drawText("NAHMAN", 42, 105, 450, 58, juce::Justification::left);
+    g.setColour(gold); g.setFont(juce::Font(34.0f, juce::Font::italic));
+    g.drawText("Vocal Suite", 46, 160, 440, 48, juce::Justification::left);
+    g.setColour(juce::Colour(0xffe8e1d5)); g.setFont(juce::Font(11.5f, juce::Font::bold));
+    g.drawText("VOCAL CHANNEL STRIP  •  STUDIO EDITION", 52, 211, 430, 20, juce::Justification::left);
     g.setColour(gold); g.setFont(juce::Font(19.0f, juce::Font::italic));
     g.drawText("אין ייאוש בעולם כלל", getWidth() - 330, 28, 280, 34, juce::Justification::right);
     g.setColour(juce::Colour(0x99ffc451)); g.drawLine((float)getWidth() - 360.0f, 67.0f, (float)getWidth() - 48.0f, 67.0f, 1.5f);
 
     const auto panel = [&g](float x, float y, float w, float h) {
-        g.setColour(juce::Colour(0xb91b1712)); g.fillRoundedRectangle(x, y, w, h, 15.0f);
-        g.setColour(juce::Colour(0x88ffc451)); g.drawRoundedRectangle(x, y, w, h, 15.0f, 1.0f);
+        g.setColour(juce::Colour(0xe10b1115)); g.fillRoundedRectangle(x, y, w, h, 15.0f);
+        g.setColour(juce::Colour(0x99d9ad65)); g.drawRoundedRectangle(x, y, w, h, 15.0f, 1.1f);
+        g.setColour(juce::Colour(0x22ffffff)); g.drawLine(x + 16.0f, y + 1.5f, x + w - 16.0f, y + 1.5f, 1.0f);
     };
     panel(26.0f, 285.0f, (float)getWidth() - 52.0f, 300.0f);
     panel(26.0f, 600.0f, 710.0f, 210.0f);
@@ -220,7 +228,7 @@ void NahmanVocalSuiteAudioProcessorEditor::paint(juce::Graphics& g)
     g.drawText("PEAK  " + juce::String(juce::Decibels::gainToDecibels(juce::jmax(0.00001f, processor.getOutputPeak())), 1) + " dB", 1118, 690, 120, 18, juce::Justification::left);
 
     const juce::Rectangle<float> eqArea(48.0f, 648.0f, 660.0f, 142.0f);
-    g.setColour(juce::Colour(0xff100e0a)); g.fillRoundedRectangle(eqArea, 8.0f);
+    g.setColour(juce::Colour(0xff090e12)); g.fillRoundedRectangle(eqArea, 8.0f);
     g.setColour(juce::Colour(0x55ffc451));
     for (int i = 1; i < 8; ++i) g.drawVerticalLine((int)(eqArea.getX() + i * eqArea.getWidth() / 8.0f), eqArea.getY(), eqArea.getBottom());
     for (int i = 1; i < 4; ++i) g.drawHorizontalLine((int)(eqArea.getY() + i * eqArea.getHeight() / 4.0f), eqArea.getX(), eqArea.getRight());
@@ -228,7 +236,12 @@ void NahmanVocalSuiteAudioProcessorEditor::paint(juce::Graphics& g)
     curve.startNewSubPath(eqArea.getX(), eqArea.getCentreY());
     curve.cubicTo(eqArea.getX()+120, eqArea.getY()+eqArea.getHeight()*0.72f, eqArea.getX()+170, eqArea.getY()+eqArea.getHeight()*0.20f, eqArea.getX()+300, eqArea.getY()+eqArea.getHeight()*0.43f);
     curve.cubicTo(eqArea.getX()+420, eqArea.getY()+eqArea.getHeight()*0.56f, eqArea.getX()+520, eqArea.getY()+eqArea.getHeight()*0.58f, eqArea.getRight(), eqArea.getCentreY());
-    g.setColour(gold); g.strokePath(curve, juce::PathStrokeType(2.4f));
+    g.setColour(juce::Colour(0x44d9ad65)); g.strokePath(curve, juce::PathStrokeType(6.0f));
+    g.setColour(gold); g.strokePath(curve, juce::PathStrokeType(2.2f));
+    g.setColour(juce::Colour(0xffd9ad65)); g.setFont(juce::Font(9.5f));
+    const char* bands[] = { "60", "120", "250", "500", "1k", "2k", "4k", "8k", "16k" };
+    for (int i = 0; i < 9; ++i)
+        g.drawText(bands[i], (int)(eqArea.getX() + i * eqArea.getWidth() / 8.0f - 12.0f), (int)eqArea.getBottom() - 15, 26, 12, juce::Justification::centred);
 
     const juce::Rectangle<float> waveArea(540.0f, 112.0f, 350.0f, 105.0f);
     g.setColour(juce::Colour(0x99100d09)); g.fillRoundedRectangle(waveArea, 10.0f);
