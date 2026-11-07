@@ -28,6 +28,10 @@ target_sources(NahmanVocalSuite PRIVATE
     Source/PluginProcessor.cpp
     Source/PluginEditor.cpp)
 target_compile_features(NahmanVocalSuite PRIVATE cxx_std_17)
+if (MSVC)
+    # Keep Hebrew literals encoded as UTF-8 on Windows builds.
+    target_compile_options(NahmanVocalSuite PRIVATE /utf-8)
+endif()
 target_compile_definitions(NahmanVocalSuite PUBLIC
     JUCE_WEB_BROWSER=0 JUCE_USE_CURL=0
     JUCE_VST3_CAN_REPLACE_VST2=0)
