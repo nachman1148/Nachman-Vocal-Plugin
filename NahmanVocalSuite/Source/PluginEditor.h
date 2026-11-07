@@ -20,8 +20,8 @@ private:
     bool useAiMode = true;
     bool showingProcessed = true;
 
-    juce::Slider input,hpf,low,mid,high,threshold,ratio,saturation,reverb,delay,output;
-    juce::ToggleButton gate,eq,comp,sat,rev,del;
+    juce::Slider input,hpf,low,mid,high,threshold,ratio,saturation,reverb,delay,output,deEsserAmount;
+    juce::ToggleButton gate,eq,comp,sat,rev,del,deEsser;
     std::vector<std::unique_ptr<juce::Label>> labels;
     std::vector<std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment>> attachments;
     std::vector<std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment>> toggles;
