@@ -37,6 +37,9 @@ private:
     Filter hpFilters[2], lowFilters[2], midFilters[2], highFilters[2];
     juce::dsp::Compressor<float> compressor[2];
     juce::dsp::Reverb reverb;
+    std::array<float, 2> deEsserHighpassState {};
+    std::array<float, 2> deEsserEnvelope {};
+    std::array<float, 2> gateEnvelope {};
     std::array<std::array<float, 8192>, 2> pitchDelayBuffer {};
     std::array<int, 2> pitchDelayWrite {};
     std::array<float, 2> pitchPhase {};
