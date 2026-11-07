@@ -26,10 +26,15 @@ NahmanVocalSuiteAudioProcessorEditor::NahmanVocalSuiteAudioProcessorEditor(Nahma
 {
     setSize(1280, 850);
     startTimerHz(30);
-    // Load the chosen photo from Documents/NahmanVocalSuite.
-    const auto bgFile = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory)
-        .getChildFile("NahmanVocalSuite").getChildFile("nahman_background.jpg");
-    if (bgFile.existsAsFile()) backgroundImage = juce::ImageFileFormat::loadFrom(bgFile);
+    // Load the exact user-selected house photo from Documents/NahmanVocalSuite.
+    const auto bgFolder = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory)
+        .getChildFile("NahmanVocalSuite");
+    const auto pngBackground = bgFolder.getChildFile("nahman_background.png");
+    const auto jpgBackground = bgFolder.getChildFile("nahman_background.jpg");
+    if (pngBackground.existsAsFile())
+        backgroundImage = juce::ImageFileFormat::loadFrom(pngBackground);
+    else if (jpgBackground.existsAsFile())
+        backgroundImage = juce::ImageFileFormat::loadFrom(jpgBackground);
 
     auto addKnob = [this](juce::Slider& s, const juce::String& name, const char* id) {
         s.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
@@ -173,7 +178,7 @@ void NahmanVocalSuiteAudioProcessorEditor::paint(juce::Graphics& g)
                                            juce::Colour(0xff100d09), (float)getWidth(), (float)getHeight(), false));
     g.fillAll();
     if (backgroundImage.isValid())
-        g.drawImage(backgroundImage, getLocalBounds().toFloat(), juce::RectanglePlacement::centred);
+        g.drawImage(backgroundImage, getLocalBounds().toFloat(), juce::RectanglePlacement(juce::RectanglePlacement::centred | juce::RectanglePlacement::fillDestination));
     g.setColour(juce::Colour(0x72090000)); g.fillRect(0, 0, getWidth(), getHeight());
     g.setColour(juce::Colour(0x5a000000));
     g.fillRoundedRectangle(18.0f, 18.0f, (float)getWidth() - 36.0f, (float)getHeight() - 36.0f, 18.0f);
