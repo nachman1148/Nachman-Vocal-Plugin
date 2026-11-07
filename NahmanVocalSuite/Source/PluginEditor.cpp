@@ -26,6 +26,10 @@ NahmanVocalSuiteAudioProcessorEditor::NahmanVocalSuiteAudioProcessorEditor(Nahma
 {
     setSize(1280, 850);
     startTimerHz(30);
+    // Load the chosen photo from Documents/NahmanVocalSuite.
+    const auto bgFile = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory)
+        .getChildFile("NahmanVocalSuite").getChildFile("nahman_background.jpg");
+    if (bgFile.existsAsFile()) backgroundImage = juce::ImageFileFormat::loadFrom(bgFile);
 
     auto addKnob = [this](juce::Slider& s, const juce::String& name, const char* id) {
         s.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
@@ -165,11 +169,12 @@ NahmanVocalSuiteAudioProcessorEditor::NahmanVocalSuiteAudioProcessorEditor(Nahma
 
 void NahmanVocalSuiteAudioProcessorEditor::paint(juce::Graphics& g)
 {
-    g.fillAll(background);
     g.setGradientFill(juce::ColourGradient(juce::Colour(0xff8b6030), 0.0f, 0.0f,
                                            juce::Colour(0xff100d09), (float)getWidth(), (float)getHeight(), false));
     g.fillAll();
-    g.setColour(juce::Colour(0x55090000)); g.fillRect(0, 0, getWidth(), getHeight());
+    if (backgroundImage.isValid())
+        g.drawImage(backgroundImage, getLocalBounds().toFloat(), juce::RectanglePlacement::centred);
+    g.setColour(juce::Colour(0x72090000)); g.fillRect(0, 0, getWidth(), getHeight());
     g.setColour(juce::Colour(0x5a000000));
     g.fillRoundedRectangle(18.0f, 18.0f, (float)getWidth() - 36.0f, (float)getHeight() - 36.0f, 18.0f);
 
@@ -186,7 +191,7 @@ void NahmanVocalSuiteAudioProcessorEditor::paint(juce::Graphics& g)
     g.setColour(juce::Colour(0x99ffc451)); g.drawLine((float)getWidth() - 360.0f, 67.0f, (float)getWidth() - 48.0f, 67.0f, 1.5f);
 
     const auto panel = [&g](float x, float y, float w, float h) {
-        g.setColour(juce::Colour(0xd91b1712)); g.fillRoundedRectangle(x, y, w, h, 15.0f);
+        g.setColour(juce::Colour(0xb91b1712)); g.fillRoundedRectangle(x, y, w, h, 15.0f);
         g.setColour(juce::Colour(0x88ffc451)); g.drawRoundedRectangle(x, y, w, h, 15.0f, 1.0f);
     };
     panel(26.0f, 285.0f, (float)getWidth() - 52.0f, 300.0f);
