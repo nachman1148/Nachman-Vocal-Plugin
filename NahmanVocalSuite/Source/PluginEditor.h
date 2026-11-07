@@ -11,6 +11,7 @@ public:
     void timerCallback() override;
 private:
     NahmanVocalSuiteAudioProcessor& processor;
+    juce::Image backgroundImage;
     juce::TextButton magic, aiDetect, standardMode, analyzeOnly, applySuggestion, abCompare;
     juce::ToggleButton autoTune;
     juce::ComboBox tuneKey, tuneScale;
