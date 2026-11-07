@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#11100f">
+  <title>נחמן — Vocal Tune</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div class="brand"><span class="brand-mark">נ</span><div><strong>נחמן</strong><small>VOCAL TUNE</small></div></div>
+      <span class="tag">גרסת פיתוח · BETA</span>
+    </header>
+
+    <section class="hero">
+      <p class="eyebrow">קול מדויק. לב פתוח.</p>
+      <h1>תיקון גובה צליל <span>(Auto-Tune)</span></h1>
+      <p class="sub">סביבת עבודה פשוטה לכיוון ותיקון וואקאל.</p>
+    </section>
+
+    <section class="panel">
+      <div class="section-head"><div><h2>הקלטה</h2><small>Audio input</small></div><span id="fileStatus" class="status">לא נטען קובץ</span></div>
+      <label class="upload" for="audioFile"><span class="upload-icon">＋</span><span><b>בחר קובץ וואקאל</b><small>WAV, MP3, M4A או OGG</small></span><span class="browse">עיון</span></label>
+      <input id="audioFile" type="file" accept="audio/*" hidden>
+      <audio id="player" controls></audio>
+      <div class="actions"><button id="micBtn" class="secondary">🎙 הפעל מיקרופון</button><button id="stopBtn" class="quiet" disabled>עצור</button></div>
+    </section>
+
+    <section class="grid">
+      <div class="panel">
+        <div class="section-head"><div><h2>הגדרות תיקון</h2><small>Tuning settings</small></div></div>
+        <label class="field">סולם <span>Key</span>
+          <select id="key"><option value="C">דו מז'ור / C Major</option><option value="G">סול מז'ור / G Major</option><option value="D">רה מז'ור / D Major</option><option value="A">לה מז'ור / A Major</option><option value="E">מי מז'ור / E Major</option><option value="F">פה מז'ור / F Major</option><option value="Bb">סי במול מז'ור / Bb Major</option><option value="Am">לה מינור / A Minor</option><option value="Em">מי מינור / E Minor</option><option value="Dm">רה מינור / D Minor</option><option value="Chromatic">כרומטי / Chromatic</option></select>
+        </label>
+        <label class="field">מהירות תיקון <span>Retune Speed</span><output id="speedOut">25</output>
+          <input id="speed" type="range" min="0" max="100" value="25">
+          <div class="range-labels"><small>טבעי</small><small>רובוטי</small></div>
+        </label>
+        <label class="field">עוצמת תיקון <span>Correction Amount</span><output id="amountOut">80%</output>
+          <input id="amount" type="range" min="0" max="100" value="80">
+        </label>
+      </div>
+
+      <div class="panel monitor">
+        <div class="section-head"><div><h2>זיהוי תו</h2><small>Pitch monitor</small></div><span class="live-dot"></span></div>
+        <div class="note" id="note">—</div>
+        <div class="frequency" id="frequency">ממתין לאות שמע</div>
+        <div class="meter"><div id="meterFill"></div></div>
+        <p class="hint" id="monitorHint">הפעל מיקרופון כדי לזהות את התו בזמן אמת.</p>
+      </div>
+    </section>
+
+    <footer><span>אין יאוש בעולם כלל</span><small>Nachman Vocal · Built with care</small></footer>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
